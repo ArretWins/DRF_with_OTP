@@ -8,7 +8,7 @@ class RegisterAPI(APIView):
     def post(self, request):
         try:
             data = request.data
-            serializer = UserSerializer()
+            serializer = UserSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({
