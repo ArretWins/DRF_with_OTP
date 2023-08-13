@@ -1,10 +1,18 @@
 from django.shortcuts import render
+from rest_framework import viewsets, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from .models import User
 from .serializers import UserSerializer, VerifyAccountSerializer
 from .emails import send_otp_via_email
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
 
 class RegisterAPI(APIView):
     def post(self, request):
