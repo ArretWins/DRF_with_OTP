@@ -13,6 +13,21 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        if 'password' in request.data:
+            password = request.data['password']
+            hashed_password = make_password(password)
+            instance.password = hashed_password
+
+        self.perform_update(serializer)
+
+        return Response(serializer.data)
+
 
 class RegisterAPI(APIView):
     def post(self, request):
