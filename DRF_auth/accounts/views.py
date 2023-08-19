@@ -13,6 +13,8 @@ from .serializers import UserSerializer, VerifyAccountSerializer
 from .emails import send_otp_via_email
 
 class RegisterAPI(APIView):
+    def get(self, request):
+        return render(request, 'accounts/registration.html')
     def post(self, request):
         try:
             data = request.data
@@ -36,6 +38,10 @@ class RegisterAPI(APIView):
 
 
 class VerifyOTP(APIView):
+
+    def get(self, request):
+        return render(request, 'accounts/verify.html')
+
     def post(self, request):
         try:
             data = request.data
@@ -82,7 +88,16 @@ class VerifyOTP(APIView):
 class CustomLoginView(APIView):
 
     def get(self, request):
-        return render(request, 'accounts/login.html')
+        # Проверка, авторизован ли пользователь
+        if request.user.is_authenticated:
+            context = {'logout_message': 'You are already logged in. Please log out before attempting to log in again.'}
+            return render(request, 'accounts/logout.html', context)
+
+        context = {
+            'logout_message': '',
+            'email': ''  # Очищаем поле email
+        }
+        return render(request, 'accounts/login.html', context)
 
     def post(self, request):
         # username = None
@@ -114,16 +129,18 @@ class CustomLoginView(APIView):
 class CustomLogoutView(APIView):
     def get(self, request):
         return render(request, 'accounts/logout.html')
-    def post(self, request):
-        User = get_user_model()
-        try:
-            token = request.auth
-            if token is not None:
-                user = User.objects.get(auth_token=token)
-                user.auth_token.delete()
-        except (User.DoesNotExist, AttributeError):
-            pass
 
+
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return Response({"error": "You are not logged in."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Проверка, был ли пользователь уже выведен из системы
+        if request.user.auth_token is None:
+            return Response({"message": "You have already logged out."}, status=status.HTTP_200_OK)
+
+        # Удаление токена и выход из системы
+        request.user.auth_token.delete()
         logout(request)
 
         return Response({"success": "Successfully logged out."}, status=status.HTTP_200_OK)

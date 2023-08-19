@@ -7,9 +7,9 @@ from rest_framework import routers
 # router.register(r'users', CustomLoginView)
 
 urlpatterns = [
-    path('register/', RegisterAPI.as_view()),
+    path('register/', RegisterAPI.as_view(), name='register'),
     path('admin/', admin.site.urls),
-    path('verify/', VerifyOTP.as_view()),
+    path('verify/', VerifyOTP.as_view(), name='verify-otp'),
     path('login/', CustomLoginView.as_view(), name='custom-login'),
     path('logout/', CustomLogoutView.as_view(), name='custom-logout'),
     path('', ShowApi.as_view())

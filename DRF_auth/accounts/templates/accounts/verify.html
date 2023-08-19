@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="bg-white p-8 rounded shadow-md w-96">
+        <h2 class="text-2xl font-semibold mb-4">Verify OTP</h2>
+        <form method="post" action="{% url 'verify-otp' %}">
+            {% csrf_token %}
+            <label for="email">Email:</label><br>
+            <input class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-400" type="email" id="email" name="email" required><br>
+            <label for="otp">OTP:</label><br>
+            <input class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:border-blue-400" type="text" id="otp" name="otp" required><br>
+            <button class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none" type="submit">Verify</button>
+        </form>
+    </div>
+</body>
+</html>
