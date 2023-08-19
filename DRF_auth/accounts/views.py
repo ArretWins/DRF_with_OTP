@@ -1,8 +1,13 @@
-from django.contrib.auth import authenticate, login, get_user_model, logout
-from django.shortcuts import render
-from rest_framework import status, viewsets
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import DeleteView
+from rest_framework import status
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -84,7 +89,6 @@ class VerifyOTP(APIView):
             print(e)
 
 
-
 class CustomLoginView(APIView):
 
     def get(self, request):
@@ -125,28 +129,46 @@ class CustomLoginView(APIView):
             return Response({"error": "Invalid email detect"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class CustomLogoutView(APIView):
     def get(self, request):
         return render(request, 'accounts/logout.html')
 
 
     def post(self, request):
-        if not request.user.is_authenticated:
+        if request.user.is_authenticated:
+            try:
+                token = Token.objects.get(user=request.user)
+                token.delete()
+            except Token.DoesNotExist:
+                pass
+            from django.contrib.auth import logout
+            logout(request)
+            return Response({"success": "Successfully logged out."}, status=status.HTTP_200_OK)
+        else:
             return Response({"error": "You are not logged in."}, status=status.HTTP_401_UNAUTHORIZED)
-
-        # Проверка, был ли пользователь уже выведен из системы
-        if request.user.auth_token is None:
-            return Response({"message": "You have already logged out."}, status=status.HTTP_200_OK)
-
-        # Удаление токена и выход из системы
-        request.user.auth_token.delete()
-        logout(request)
-
-        return Response({"success": "Successfully logged out."}, status=status.HTTP_200_OK)
 
 
 class ShowApi(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Дополнительные фильтры и сортировка, если нужно
+        return super().get_queryset()
+
+    def get(self, request, *args, **kwargs):
+        users = self.get_queryset()
+        return render(request, 'accounts/user_list.html', {'object_list': users, 'current_user': request.user})
+
+
+@csrf_exempt
+@login_required
+def DeleteProfileView(request):
+    if request.method == 'POST':
+        user = request.user
+        user.delete()
+        logout(request)  # Разлогиниваем пользователя
+        return redirect('custom-login')  # Перенаправляем на страницу входа
+
+    return render(request, 'accounts/delete_profile.html')

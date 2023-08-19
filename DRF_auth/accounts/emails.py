@@ -7,7 +7,7 @@ from .models import User
 def send_otp_via_email(email):
     subject = 'Your account verification email'
     otp = random.randint(1000, 9999)
-    message = f'Your OTP is {otp}'
+    message = f'Your OTP is {otp}. To confirm click http://127.0.0.1:8000/verify/'
     email_from = settings.EMAIL_HOST
     send_mail(subject, message, email_from, [email])
     user_obj = User.objects.get(email=email)
