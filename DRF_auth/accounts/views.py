@@ -1,13 +1,10 @@
-from django.contrib.auth import authenticate, get_user_model, login
-from django.contrib.auth.forms import AuthenticationForm
-from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth import authenticate, login, get_user_model, logout
 from django.shortcuts import render
 from rest_framework import status, viewsets
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -83,6 +80,10 @@ class VerifyOTP(APIView):
 
 
 class CustomLoginView(APIView):
+
+    def get(self, request):
+        return render(request, 'accounts/login.html')
+
     def post(self, request):
         # username = None
         email = request.data.get("email")
@@ -109,22 +110,26 @@ class CustomLoginView(APIView):
             return Response({"error": "Invalid email detect"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-@action(detail=False, methods=['post'])
-def CustomLogoutView(self, request):
-    print(999)       #Nothing
-    try:
-        print(request.user.auth_token)
-        request.user.auth_token.delete()
-    except (AttributeError):
-        pass
-    from django.contrib.auth import logout
-    logout(request)
 
-    return Response({"success": "Successfully logged out."},
-                    status=status.HTTP_200_OK)
+class CustomLogoutView(APIView):
+    def get(self, request):
+        return render(request, 'accounts/logout.html')
+    def post(self, request):
+        User = get_user_model()
+        try:
+            token = request.auth
+            if token is not None:
+                user = User.objects.get(auth_token=token)
+                user.auth_token.delete()
+        except (User.DoesNotExist, AttributeError):
+            pass
+
+        logout(request)
+
+        return Response({"success": "Successfully logged out."}, status=status.HTTP_200_OK)
 
 
 class ShowApi(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
