@@ -106,7 +106,7 @@ class CustomLoginView(APIView):
             }
             return Response({"success": "Successfully login", "data": data}, status=status.HTTP_200_OK)
         else:
-            return Response({"error": "Invalid login detect"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Invalid email detect"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @action(detail=False, methods=['post'])
