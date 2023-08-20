@@ -1,6 +1,6 @@
 # Django Rest Framework Project README
 
-![Screenshot](link_to_registration_screenshot.png)
+![Screenshot](.screenshots/registration.png)
 
 Welcome to our Django Rest Framework project! This README provides an overview of the project's functionalities and how to use them.
 
@@ -37,12 +37,3 @@ We offer both session-based authentication and token-based authentication for en
 User passwords are securely hashed using the Argon algorithm to ensure maximum protection.
 
 ![Screenshot](link_to_hashing_screenshot.png)
-
-## Installation
-
-To get started, follow these steps:
-
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/your-username/your-repository.git
-   cd your-repository
