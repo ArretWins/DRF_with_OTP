@@ -1,10 +1,7 @@
 from django.contrib import admin
-from django.urls import path, include, re_path
+from django.urls import path
 from accounts.views import RegisterAPI, VerifyOTP, CustomLoginView, ShowApi, CustomLogoutView, DeleteProfileView
-from rest_framework import routers
 
-# router = routers.DefaultRouter()
-# router.register(r'users', CustomLoginView)
 
 urlpatterns = [
     path('register/', RegisterAPI.as_view(), name='register'),
