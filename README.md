@@ -2,7 +2,7 @@
 
 ![Screenshot](screenshots/tenor.gif)
 
-Welcome to our Django Rest Framework project! This README provides an overview of the project's functionalities and how to use them.
+Welcome to my Django Rest Framework project! This README provides an overview of the project's functionalities and how to use them.
 
 ## Features
 
